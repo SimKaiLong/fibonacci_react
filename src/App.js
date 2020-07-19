@@ -18,24 +18,31 @@ class App extends Component {
         let err = '';
         if (nam === "num_elements") {
             if (val !== "" && !Number(val)) {
-                err = <strong>Number of elements must be a number</strong>;
+                err = <strong>Number of elements must be a number!</strong>;
+                val = null;
             } else if (Number(val) && !(1 <= val && val <= 100)) {
-                err = <strong>Number of elements must be a number between 1 and 100</strong>;
+                err = <strong>Number of elements must be a number between 1 and 100!</strong>;
+                val = null;
+            } else {
+                val = null;
             }
         }
-        this.setState({['errormessage']: err});
+        this.setState({'errormessage': err});
         this.setState({[nam]: val});
     }
 
     handleSubmit = (event) => {
-        // alert('num_elements submitted: ' + this.state.num_elements);
         event.preventDefault();
-        fetch(`http://168.138.205.119:8000/fibonacci?elements=${this.state.num_elements}`)
-            .then(res => res.json())
-            .then((data) => {
-                this.setState({results: data});
-            })
-            .catch(console.log)
+        if (this.state.errormessage !== '' || this.state.num_elements === null) {
+            this.setState({'errormessage': <strong>Please key in a valid value before submitting</strong>});
+        } else {
+            fetch(`http://168.138.205.119:8000/fibonacci?elements=${this.state.num_elements}`)
+                .then(res => res.json())
+                .then((data) => {
+                    this.setState({results: data});
+                })
+                .catch(console.log)
+        }
     }
 
     render() {
@@ -47,23 +54,32 @@ class App extends Component {
         return (
             <form onSubmit={this.handleSubmit}>
                 <div className={"container"}>
-                    <h2>Fibonnaci Sequence</h2>
                     <div className={"row"}>
-                        <div className="col-lg-4 col-md-4 col-sm-12">
-                            <div className="form-group">
-                                <label>Number of elements:</label>
-                                <input type='text' name='num_elements' className={"form-control"}
-                                       onChange={this.handleChange}/>
-                                {this.state.errormessage}
-                            </div>
+                        <h2>Fibonacci Sequence</h2>
+                    </div>
+                    <div className={"form-group row"}>
+                        <div className={"col-lg-3 col-md-3 col-sm-4"}>
+                            <label className={"col-form-label col-form-label"}>Number of elements:</label>
+                        </div>
+                        <div className={"col-lg-7 col-md-7 col-sm-6"}>
+                            <input type={'text'} name={'num_elements'} placeholder={"E.g. 10"}
+                                   className={"form-control"}
+                                   id={"num_elements_label"}
+                                   onChange={this.handleChange}/>
+                        </div>
+                        <div className={"col-lg-2 col-md-2 col-sm-2"}>
                             <input className={"btn btn-primary"} type="submit" value="Submit"/>
                         </div>
-                        <div className="col-lg-8 col-md-8 col-sm-12 card" >
+                    </div>
+                    <div className={"form-group row"}>
+                        {this.state.errormessage}
+                    </div>
+                    <div className="form-group row">
+                        <div className="col-lg-12 col-md-12 col-sm-12 card">
                             <div className={"card-body"}>
-                            <pre style={{
-                                height: '60vh',
-                                overflowX: 'hidden'
-                            }}>{JSON.stringify(json_output, null, 4)}</pre>
+                                <pre style={{height: '70vh', overflowX: 'hidden'}}>
+                                    {JSON.stringify(json_output, null, 4)}
+                                </pre>
                             </div>
                         </div>
                     </div>
